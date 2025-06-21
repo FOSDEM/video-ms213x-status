@@ -29,6 +29,8 @@ type OutputData struct {
 	Signal  string `json:"signal"`
 	Time    int64  `json:"time"`
 	FrameID int    `json:"fid"`
+	Colorspace string `json:"colorspace"`
+	Format string `json:"format"`
 }
 
 // the murderous (thanks, Vasil) is always correct, but will every so often kill
@@ -86,6 +88,24 @@ func readFlaky(c *Context, output *OutputData) bool {
 		output.Signal = "yes"
 	} else {
 		output.Signal = "no"
+	}
+
+	buf = readmem(c, Region{Region: "RAM", Addr: 0x00001c3a}, 1)
+
+	if buf[0] == 0 {
+		output.Colorspace = "RGB";
+	} else if buf[0] == 1 {
+		output.Colorspace = "Y422";
+	} else {
+		output.Colorspace = "Y444";
+	}
+
+	buf = readmem(c, Region{Region: "RAM", Addr: 0x00001c41}, 1)
+
+	if buf[0] == 0 {
+		output.Format = "DVI";
+	} else if buf[0] == 2 {
+		output.Format = "HDMI";
 	}
 
 	return true
@@ -194,7 +214,7 @@ func (s *StatusCmd) Run(c *Context) error {
 			data, _ := json.Marshal(output)
 			p = string(data)
 		} else {
-			p = fmt.Sprintf("time: %d\nwidth: %d\nheight: %d\nsignal: %s\nframeid: %d\n", output.Time, output.Width, output.Height, output.Signal, output.FrameID)
+			p = fmt.Sprintf("time: %d\nwidth: %d\nheight: %d\nsignal: %s\nframeid: %d\ncolorspace: %s\nformat: %s\n", output.Time, output.Width, output.Height, output.Signal, output.FrameID, output.Colorspace, output.Format)
 		}
 
 		if s.Filename == "" {
