@@ -31,7 +31,7 @@ func SearchDevice(foundHandler func(info *hid.DeviceInfo) error) error {
 func OpenDevice() (gohid.HIDDevice, error) {
 	var dev *hid.Device
 	err := SearchDevice(func(info *hid.DeviceInfo) error {
-		d, err := hid.Open(info.VendorID, info.ProductID, info.SerialNbr)
+		d, err := hid.OpenPath(info.Path)
 		if err == nil {
 			dev = d
 			return errors.New("Done")
