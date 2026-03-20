@@ -76,6 +76,7 @@ jobs:
            build/ms213x-status=/usr/bin/ \
            README.md=/usr/share/doc/ms213x-status/
     - run: package_cloud push fosdem/video-team/debian/bookworm release/*deb
+    - run: package_cloud push fosdem/video-team/debian/trixie release/*deb
     - store_artifacts:
         path: release
     - persist_to_workspace:
